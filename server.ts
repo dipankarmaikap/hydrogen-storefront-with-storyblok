@@ -11,6 +11,7 @@ import {
 import {
   createRequestHandler,
   getStorefrontHeaders,
+  type AppLoadContext,
 } from '@shopify/remix-oxygen';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
@@ -19,12 +20,11 @@ import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
  * Export a fetch handler in module format.
  */
 export default {
-  /**
-   * @param {Request} request
-   * @param {Env} env
-   * @param {ExecutionContext} executionContext
-   */
-  async fetch(request, env, executionContext) {
+  async fetch(
+    request: Request,
+    env: Env,
+    executionContext: ExecutionContext,
+  ): Promise<Response> {
     try {
       /**
        * Open a cache instance in the worker and a custom session instance.
@@ -83,7 +83,7 @@ export default {
       const handleRequest = createRequestHandler({
         build: remixBuild,
         mode: process.env.NODE_ENV,
-        getLoadContext: () => ({
+        getLoadContext: (): AppLoadContext => ({
           session,
           storefront,
           customerAccount,
@@ -112,5 +112,3 @@ export default {
     }
   },
 };
-
-/** @typedef {import('@shopify/remix-oxygen').AppLoadContext} AppLoadContext */

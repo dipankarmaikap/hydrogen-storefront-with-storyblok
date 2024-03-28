@@ -1,11 +1,14 @@
 import {Await, NavLink} from '@remix-run/react';
 import {Suspense} from 'react';
+import type {HeaderQuery} from 'storefrontapi.generated';
+import type {LayoutProps} from './Layout';
 import {useRootLoaderData} from '~/root';
 
-/**
- * @param {HeaderProps}
- */
-export function Header({header, isLoggedIn, cart}) {
+type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'isLoggedIn'>;
+
+type Viewport = 'desktop' | 'mobile';
+
+export function Header({header, isLoggedIn, cart}: HeaderProps) {
   const {shop, menu} = header;
   return (
     <header className="header">
@@ -22,18 +25,19 @@ export function Header({header, isLoggedIn, cart}) {
   );
 }
 
-/**
- * @param {{
- *   menu: HeaderProps['header']['menu'];
- *   primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
- *   viewport: Viewport;
- * }}
- */
-export function HeaderMenu({menu, primaryDomainUrl, viewport}) {
+export function HeaderMenu({
+  menu,
+  primaryDomainUrl,
+  viewport,
+}: {
+  menu: HeaderProps['header']['menu'];
+  primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
+  viewport: Viewport;
+}) {
   const {publicStoreDomain} = useRootLoaderData();
   const className = `header-menu-${viewport}`;
 
-  function closeAside(event) {
+  function closeAside(event: React.MouseEvent<HTMLAnchorElement>) {
     if (viewport === 'mobile') {
       event.preventDefault();
       window.location.href = event.currentTarget.href;
@@ -81,10 +85,10 @@ export function HeaderMenu({menu, primaryDomainUrl, viewport}) {
   );
 }
 
-/**
- * @param {Pick<HeaderProps, 'isLoggedIn' | 'cart'>}
- */
-function HeaderCtas({isLoggedIn, cart}) {
+function HeaderCtas({
+  isLoggedIn,
+  cart,
+}: Pick<HeaderProps, 'isLoggedIn' | 'cart'>) {
   return (
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
@@ -113,17 +117,11 @@ function SearchToggle() {
   return <a href="#search-aside">Search</a>;
 }
 
-/**
- * @param {{count: number}}
- */
-function CartBadge({count}) {
+function CartBadge({count}: {count: number}) {
   return <a href="#cart-aside">Cart {count}</a>;
 }
 
-/**
- * @param {Pick<HeaderProps, 'cart'>}
- */
-function CartToggle({cart}) {
+function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
   return (
     <Suspense fallback={<CartBadge count={0} />}>
       <Await resolve={cart}>
@@ -178,21 +176,15 @@ const FALLBACK_HEADER_MENU = {
   ],
 };
 
-/**
- * @param {{
- *   isActive: boolean;
- *   isPending: boolean;
- * }}
- */
-function activeLinkStyle({isActive, isPending}) {
+function activeLinkStyle({
+  isActive,
+  isPending,
+}: {
+  isActive: boolean;
+  isPending: boolean;
+}) {
   return {
     fontWeight: isActive ? 'bold' : undefined,
     color: isPending ? 'grey' : 'black',
   };
 }
-
-/** @typedef {Pick<LayoutProps, 'header' | 'cart' | 'isLoggedIn'>} HeaderProps */
-/** @typedef {'desktop' | 'mobile'} Viewport */
-
-/** @typedef {import('storefrontapi.generated').HeaderQuery} HeaderQuery */
-/** @typedef {import('./Layout').LayoutProps} LayoutProps */

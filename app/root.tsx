@@ -1,5 +1,9 @@
 import {useNonce} from '@shopify/hydrogen';
-import {defer} from '@shopify/remix-oxygen';
+import {
+  defer,
+  type SerializeFrom,
+  type LoaderFunctionArgs,
+} from '@shopify/remix-oxygen';
 import {
   Links,
   Meta,
@@ -11,18 +15,38 @@ import {
   useLoaderData,
   ScrollRestoration,
   isRouteErrorResponse,
+  type ShouldRevalidateFunction,
 } from '@remix-run/react';
 import favicon from './assets/favicon.svg';
 import resetStyles from './styles/reset.css';
 import appStyles from './styles/app.css';
 import {Layout} from '~/components/Layout';
-import tailwindCss from './styles/tailwind.css';
-
+import FallbackComponent from '~/components/storyblok/FallbackComponent';
+import {storyblokInit, apiPlugin} from '@storyblok/react';
+const components = {};
+const shouldUseBridge =
+  typeof window === 'undefined'
+    ? false
+    : window.location !== window.parent.location;
+storyblokInit({
+  accessToken: 'rdO2KxjY01KU03K9Y7X4vAtt',
+  apiOptions: {
+    region: 'us',
+  },
+  use: [apiPlugin],
+  components,
+  bridge: shouldUseBridge,
+  enableFallbackComponent: true,
+  customFallbackComponent: FallbackComponent,
+});
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
- * @type {ShouldRevalidateFunction}
  */
-export const shouldRevalidate = ({formMethod, currentUrl, nextUrl}) => {
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  formMethod,
+  currentUrl,
+  nextUrl,
+}) => {
   // revalidate when a mutation is performed e.g add to cart, login...
   if (formMethod && formMethod !== 'GET') {
     return true;
@@ -38,7 +62,6 @@ export const shouldRevalidate = ({formMethod, currentUrl, nextUrl}) => {
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: tailwindCss},
     {rel: 'stylesheet', href: resetStyles},
     {rel: 'stylesheet', href: appStyles},
     {
@@ -55,17 +78,13 @@ export function links() {
 
 /**
  * Access the result of the root loader from a React component.
- * @return {LoaderReturnData}
  */
 export const useRootLoaderData = () => {
   const [root] = useMatches();
-  return root?.data;
+  return root?.data as SerializeFrom<typeof loader>;
 };
 
-/**
- * @param {LoaderFunctionArgs}
- */
-export async function loader({context}) {
+export async function loader({context}: LoaderFunctionArgs) {
   const {storefront, customerAccount, cart} = context;
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
 
@@ -106,8 +125,7 @@ export async function loader({context}) {
 
 export default function App() {
   const nonce = useNonce();
-  /** @type {LoaderReturnData} */
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
 
   return (
     <html lang="en">
@@ -195,7 +213,7 @@ const MENU_FRAGMENT = `#graphql
       ...ParentMenuItem
     }
   }
-`;
+` as const;
 
 const HEADER_QUERY = `#graphql
   fragment Shop on Shop {
@@ -226,7 +244,7 @@ const HEADER_QUERY = `#graphql
     }
   }
   ${MENU_FRAGMENT}
-`;
+` as const;
 
 const FOOTER_QUERY = `#graphql
   query Footer(
@@ -239,8 +257,4 @@ const FOOTER_QUERY = `#graphql
     }
   }
   ${MENU_FRAGMENT}
-`;
-
-/** @typedef {import('@shopify/remix-oxygen').LoaderFunctionArgs} LoaderFunctionArgs */
-/** @typedef {import('@remix-run/react').ShouldRevalidateFunction} ShouldRevalidateFunction */
-/** @typedef {import('@shopify/remix-oxygen').SerializeFrom<typeof loader>} LoaderReturnData */
+` as const;

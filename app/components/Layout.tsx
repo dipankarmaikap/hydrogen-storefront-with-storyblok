@@ -1,5 +1,10 @@
 import {Await} from '@remix-run/react';
 import {Suspense} from 'react';
+import type {
+  CartApiQueryFragment,
+  FooterQuery,
+  HeaderQuery,
+} from 'storefrontapi.generated';
 import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
 import {Header, HeaderMenu} from '~/components/Header';
@@ -9,10 +14,21 @@ import {
   PredictiveSearchResults,
 } from '~/components/Search';
 
-/**
- * @param {LayoutProps}
- */
-export function Layout({cart, children = null, footer, header, isLoggedIn}) {
+export type LayoutProps = {
+  cart: Promise<CartApiQueryFragment | null>;
+  children?: React.ReactNode;
+  footer: Promise<FooterQuery>;
+  header: HeaderQuery;
+  isLoggedIn: Promise<boolean>;
+};
+
+export function Layout({
+  cart,
+  children = null,
+  footer,
+  header,
+  isLoggedIn,
+}: LayoutProps) {
   return (
     <>
       <CartAside cart={cart} />
@@ -29,10 +45,7 @@ export function Layout({cart, children = null, footer, header, isLoggedIn}) {
   );
 }
 
-/**
- * @param {{cart: LayoutProps['cart']}}
- */
-function CartAside({cart}) {
+function CartAside({cart}: {cart: LayoutProps['cart']}) {
   return (
     <Aside id="cart-aside" heading="CART">
       <Suspense fallback={<p>Loading cart ...</p>}>
@@ -81,13 +94,13 @@ function SearchAside() {
   );
 }
 
-/**
- * @param {{
- *   menu: HeaderQuery['menu'];
- *   shop: HeaderQuery['shop'];
- * }}
- */
-function MobileMenuAside({menu, shop}) {
+function MobileMenuAside({
+  menu,
+  shop,
+}: {
+  menu: HeaderQuery['menu'];
+  shop: HeaderQuery['shop'];
+}) {
   return (
     menu &&
     shop?.primaryDomain?.url && (
@@ -101,17 +114,3 @@ function MobileMenuAside({menu, shop}) {
     )
   );
 }
-
-/**
- * @typedef {{
- *   cart: Promise<CartApiQueryFragment | null>;
- *   children?: React.ReactNode;
- *   footer: Promise<FooterQuery>;
- *   header: HeaderQuery;
- *   isLoggedIn: Promise<boolean>;
- * }} LayoutProps
- */
-
-/** @typedef {import('storefrontapi.generated').CartApiQueryFragment} CartApiQueryFragment */
-/** @typedef {import('storefrontapi.generated').FooterQuery} FooterQuery */
-/** @typedef {import('storefrontapi.generated').HeaderQuery} HeaderQuery */

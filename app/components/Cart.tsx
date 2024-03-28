@@ -1,11 +1,17 @@
 import {CartForm, Image, Money} from '@shopify/hydrogen';
+import type {CartLineUpdateInput} from '@shopify/hydrogen/storefront-api-types';
 import {Link} from '@remix-run/react';
+import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 
-/**
- * @param {CartMainProps}
- */
-export function CartMain({layout, cart}) {
+type CartLine = CartApiQueryFragment['lines']['nodes'][0];
+
+type CartMainProps = {
+  cart: CartApiQueryFragment | null;
+  layout: 'page' | 'aside';
+};
+
+export function CartMain({layout, cart}: CartMainProps) {
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
   const withDiscount =
     cart &&
@@ -20,10 +26,7 @@ export function CartMain({layout, cart}) {
   );
 }
 
-/**
- * @param {CartMainProps}
- */
-function CartDetails({layout, cart}) {
+function CartDetails({layout, cart}: CartMainProps) {
   const cartHasItems = !!cart && cart.totalQuantity > 0;
 
   return (
@@ -39,13 +42,13 @@ function CartDetails({layout, cart}) {
   );
 }
 
-/**
- * @param {{
- *   layout: CartMainProps['layout'];
- *   lines: CartApiQueryFragment['lines'] | undefined;
- * }}
- */
-function CartLines({lines, layout}) {
+function CartLines({
+  lines,
+  layout,
+}: {
+  layout: CartMainProps['layout'];
+  lines: CartApiQueryFragment['lines'] | undefined;
+}) {
   if (!lines) return null;
 
   return (
@@ -59,13 +62,13 @@ function CartLines({lines, layout}) {
   );
 }
 
-/**
- * @param {{
- *   layout: CartMainProps['layout'];
- *   line: CartLine;
- * }}
- */
-function CartLineItem({layout, line}) {
+function CartLineItem({
+  layout,
+  line,
+}: {
+  layout: CartMainProps['layout'];
+  line: CartLine;
+}) {
   const {id, merchandise} = line;
   const {product, title, image, selectedOptions} = merchandise;
   const lineItemUrl = useVariantUrl(product.handle, selectedOptions);
@@ -114,10 +117,7 @@ function CartLineItem({layout, line}) {
   );
 }
 
-/**
- * @param {{checkoutUrl: string}}
- */
-function CartCheckoutActions({checkoutUrl}) {
+function CartCheckoutActions({checkoutUrl}: {checkoutUrl: string}) {
   if (!checkoutUrl) return null;
 
   return (
@@ -130,14 +130,15 @@ function CartCheckoutActions({checkoutUrl}) {
   );
 }
 
-/**
- * @param {{
- *   children?: React.ReactNode;
- *   cost: CartApiQueryFragment['cost'];
- *   layout: CartMainProps['layout'];
- * }}
- */
-export function CartSummary({cost, layout, children = null}) {
+export function CartSummary({
+  cost,
+  layout,
+  children = null,
+}: {
+  children?: React.ReactNode;
+  cost: CartApiQueryFragment['cost'];
+  layout: CartMainProps['layout'];
+}) {
   const className =
     layout === 'page' ? 'cart-summary-page' : 'cart-summary-aside';
 
@@ -159,10 +160,7 @@ export function CartSummary({cost, layout, children = null}) {
   );
 }
 
-/**
- * @param {{lineIds: string[]}}
- */
-function CartLineRemoveButton({lineIds}) {
+function CartLineRemoveButton({lineIds}: {lineIds: string[]}) {
   return (
     <CartForm
       route="/cart"
@@ -174,10 +172,7 @@ function CartLineRemoveButton({lineIds}) {
   );
 }
 
-/**
- * @param {{line: CartLine}}
- */
-function CartLineQuantity({line}) {
+function CartLineQuantity({line}: {line: CartLine}) {
   if (!line || typeof line?.quantity === 'undefined') return null;
   const {id: lineId, quantity} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
@@ -212,14 +207,15 @@ function CartLineQuantity({line}) {
   );
 }
 
-/**
- * @param {{
- *   line: CartLine;
- *   priceType?: 'regular' | 'compareAt';
- *   [key: string]: any;
- * }}
- */
-function CartLinePrice({line, priceType = 'regular', ...passthroughProps}) {
+function CartLinePrice({
+  line,
+  priceType = 'regular',
+  ...passthroughProps
+}: {
+  line: CartLine;
+  priceType?: 'regular' | 'compareAt';
+  [key: string]: any;
+}) {
   if (!line?.cost?.amountPerQuantity || !line?.cost?.totalAmount) return null;
 
   const moneyV2 =
@@ -238,13 +234,13 @@ function CartLinePrice({line, priceType = 'regular', ...passthroughProps}) {
   );
 }
 
-/**
- * @param {{
- *   hidden: boolean;
- *   layout?: CartMainProps['layout'];
- * }}
- */
-export function CartEmpty({hidden = false, layout = 'aside'}) {
+export function CartEmpty({
+  hidden = false,
+  layout = 'aside',
+}: {
+  hidden: boolean;
+  layout?: CartMainProps['layout'];
+}) {
   return (
     <div hidden={hidden}>
       <br />
@@ -267,13 +263,12 @@ export function CartEmpty({hidden = false, layout = 'aside'}) {
   );
 }
 
-/**
- * @param {{
- *   discountCodes: CartApiQueryFragment['discountCodes'];
- * }}
- */
-function CartDiscounts({discountCodes}) {
-  const codes =
+function CartDiscounts({
+  discountCodes,
+}: {
+  discountCodes: CartApiQueryFragment['discountCodes'];
+}) {
+  const codes: string[] =
     discountCodes
       ?.filter((discount) => discount.applicable)
       ?.map(({code}) => code) || [];
@@ -306,13 +301,13 @@ function CartDiscounts({discountCodes}) {
   );
 }
 
-/**
- * @param {{
- *   discountCodes?: string[];
- *   children: React.ReactNode;
- * }}
- */
-function UpdateDiscountForm({discountCodes, children}) {
+function UpdateDiscountForm({
+  discountCodes,
+  children,
+}: {
+  discountCodes?: string[];
+  children: React.ReactNode;
+}) {
   return (
     <CartForm
       route="/cart"
@@ -326,13 +321,13 @@ function UpdateDiscountForm({discountCodes, children}) {
   );
 }
 
-/**
- * @param {{
- *   children: React.ReactNode;
- *   lines: CartLineUpdateInput[];
- * }}
- */
-function CartLineUpdateButton({children, lines}) {
+function CartLineUpdateButton({
+  children,
+  lines,
+}: {
+  children: React.ReactNode;
+  lines: CartLineUpdateInput[];
+}) {
   return (
     <CartForm
       route="/cart"
@@ -343,14 +338,3 @@ function CartLineUpdateButton({children, lines}) {
     </CartForm>
   );
 }
-
-/** @typedef {CartApiQueryFragment['lines']['nodes'][0]} CartLine */
-/**
- * @typedef {{
- *   cart: CartApiQueryFragment | null;
- *   layout: 'page' | 'aside';
- * }} CartMainProps
- */
-
-/** @typedef {import('@shopify/hydrogen/storefront-api-types').CartLineUpdateInput} CartLineUpdateInput */
-/** @typedef {import('storefrontapi.generated').CartApiQueryFragment} CartApiQueryFragment */

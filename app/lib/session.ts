@@ -1,29 +1,25 @@
-import {createCookieSessionStorage} from '@shopify/remix-oxygen';
+import type {HydrogenSession} from '@shopify/hydrogen';
+import {
+  createCookieSessionStorage,
+  type SessionStorage,
+  type Session,
+} from '@shopify/remix-oxygen';
 
 /**
  * This is a custom session implementation for your Hydrogen shop.
  * Feel free to customize it to your needs, add helper methods, or
  * swap out the cookie-based implementation with something else!
  */
-export class AppSession {
+export class AppSession implements HydrogenSession {
   #sessionStorage;
   #session;
 
-  /**
-   * @param {SessionStorage} sessionStorage
-   * @param {Session} session
-   */
-  constructor(sessionStorage, session) {
+  constructor(sessionStorage: SessionStorage, session: Session) {
     this.#sessionStorage = sessionStorage;
     this.#session = session;
   }
 
-  /**
-   * @static
-   * @param {Request} request
-   * @param {string[]} secrets
-   */
-  static async init(request, secrets) {
+  static async init(request: Request, secrets: string[]) {
     const storage = createCookieSessionStorage({
       cookie: {
         name: 'session',
@@ -69,7 +65,3 @@ export class AppSession {
     return this.#sessionStorage.commitSession(this.#session);
   }
 }
-
-/** @typedef {import('@shopify/hydrogen').HydrogenSession} HydrogenSession */
-/** @typedef {import('@shopify/remix-oxygen').SessionStorage} SessionStorage */
-/** @typedef {import('@shopify/remix-oxygen').Session} Session */

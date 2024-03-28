@@ -7,13 +7,16 @@
  *  ...
  * </Aside>
  * ```
- * @param {{
- *   children?: React.ReactNode;
- *   heading: React.ReactNode;
- *   id?: string;
- * }}
  */
-export function Aside({children, heading, id = 'aside'}) {
+export function Aside({
+  children,
+  heading,
+  id = 'aside',
+}: {
+  children?: React.ReactNode;
+  heading: React.ReactNode;
+  id?: string;
+}) {
   return (
     <div aria-modal className="overlay" id={id} role="dialog">
       <button

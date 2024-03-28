@@ -1,10 +1,11 @@
 import {NavLink} from '@remix-run/react';
+import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {useRootLoaderData} from '~/root';
 
-/**
- * @param {FooterQuery & {shop: HeaderQuery['shop']}}
- */
-export function Footer({menu, shop}) {
+export function Footer({
+  menu,
+  shop,
+}: FooterQuery & {shop: HeaderQuery['shop']}) {
   return (
     <footer className="footer">
       {menu && shop?.primaryDomain?.url && (
@@ -14,13 +15,13 @@ export function Footer({menu, shop}) {
   );
 }
 
-/**
- * @param {{
- *   menu: FooterQuery['menu'];
- *   primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
- * }}
- */
-function FooterMenu({menu, primaryDomainUrl}) {
+function FooterMenu({
+  menu,
+  primaryDomainUrl,
+}: {
+  menu: FooterQuery['menu'];
+  primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
+}) {
   const {publicStoreDomain} = useRootLoaderData();
 
   return (
@@ -97,18 +98,15 @@ const FALLBACK_FOOTER_MENU = {
   ],
 };
 
-/**
- * @param {{
- *   isActive: boolean;
- *   isPending: boolean;
- * }}
- */
-function activeLinkStyle({isActive, isPending}) {
+function activeLinkStyle({
+  isActive,
+  isPending,
+}: {
+  isActive: boolean;
+  isPending: boolean;
+}) {
   return {
     fontWeight: isActive ? 'bold' : undefined,
     color: isPending ? 'grey' : 'white',
   };
 }
-
-/** @typedef {import('storefrontapi.generated').FooterQuery} FooterQuery */
-/** @typedef {import('storefrontapi.generated').HeaderQuery} HeaderQuery */
