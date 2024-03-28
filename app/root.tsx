@@ -20,10 +20,12 @@ import {
 import favicon from './assets/favicon.svg';
 import resetStyles from './styles/reset.css';
 import appStyles from './styles/app.css';
+import tailwind from './styles/tailwind.css';
 import {Layout} from '~/components/Layout';
 import FallbackComponent from '~/components/storyblok/FallbackComponent';
 import {storyblokInit, apiPlugin} from '@storyblok/react';
-const components = {};
+import BlogArticle from './components/storyblok/BlogArticle';
+const components = {blogArticle: BlogArticle};
 const shouldUseBridge =
   typeof window === 'undefined'
     ? false
@@ -64,6 +66,7 @@ export function links() {
   return [
     {rel: 'stylesheet', href: resetStyles},
     {rel: 'stylesheet', href: appStyles},
+    {rel: 'stylesheet', href: tailwind},
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
